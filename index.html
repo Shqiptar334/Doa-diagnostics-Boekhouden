@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DOA-diagnostics Boekhouden</title>
+<style>
+  /* Reset */
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #ffffff;
+    color: #000000;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  header {
+    background-color: #42b0e5;
+    color: #ffffff;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  header h1 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+  }
+
+  header img {
+    height: 50px;
+    width: auto;
+    border-radius: 4px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+  }
+
+  main {
+    flex-grow: 1;
+    max-width: 480px;
+    margin: 2rem auto;
+    padding: 1.5rem 2rem;
+    border: 1px solid #42b0e5;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(66,176,229,0.25);
+    background-color: #ffffff;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+
+  label {
+    font-weight: 600;
+    font-size: 1.1rem;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  select {
+    padding: 0.6rem 0.8rem;
+    font-size: 1rem;
+    border: 2px solid #42b0e5;
+    border-radius: 6px;
+    transition: border-color 0.3s ease;
+  }
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  select:focus {
+    outline: none;
+    border-color: #1a6fb3;
+  }
+
+  button {
+    background-color: #42b0e5;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  button:hover,
+  button:focus {
+    background-color: #1a6fb3;
+    outline: none;
+  }
+
+  #result {
+    margin-top: 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #000000;
+    padding: 1rem;
+    border-radius: 6px;
+    background-color: #e0f3fc;
+    border: 2px solid #42b0e5;
+  }
+
+  /* Responsive */
+  @media (max-width: 520px) {
+    main {
+      margin: 1rem;
+      padding: 1rem 1.2rem;
+      width: auto;
+    }
+    header h1 {
+      font-size: 1.5rem;
+    }
+    header img {
+      height: 40px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>DOA-diagnostics Boekhouden</h1>
+  <img src="IMG_1971.png" alt="DOA Diagnostics Logo" />
+</header>
+
+<main>
+  <form id="boekhoudingForm" onsubmit="return berekenSaldo();">
+    <label for="inkomsten">Totale inkomsten (€):</label>
+    <input type="number" id="inkomsten" name="inkomsten" step="0.01" min="0" placeholder="Bijv. 1500" required />
+
+    <label for="uitgaven">Totale uitgaven (€):</label>
+    <input type="number" id="uitgaven" name="uitgaven" step="0.01" min="0" placeholder="Bijv. 500" required />
+
+    <button type="submit">Bereken Saldo</button>
+  </form>
+
+  <div id="result" aria-live="polite" style="display:none;"></div>
+</main>
+
+<script>
+  function berekenSaldo() {
+    const inkomsten = parseFloat(document.getElementById('inkomsten').value);
+    const uitgaven = parseFloat(document.getElementById('uitgaven').value);
+    if (isNaN(inkomsten) || isNaN(uitgaven)) {
+      alert('Vul alstublieft geldige bedragen in.');
+      return false;
+    }
+    const saldo = inkomsten - uitgaven;
+    const resultDiv = document.getElementById('result');
+    resultDiv.style.display = 'block';
+    resultDiv.textContent = `Je saldo is: € ${saldo.toFixed(2)}`;
+    return false; // voorkomen dat de pagina herlaadt
+  }
+</script>
+
+</body>
+</html>
