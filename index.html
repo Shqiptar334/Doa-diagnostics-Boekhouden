@@ -118,7 +118,7 @@
   <img src="IMG_1971.png" alt="Logo">
 </header>
 
-<main>
+<main id="boekhouden">
   <form id="boekForm">
     <div>
       <label for="type">Type:</label>
@@ -151,7 +151,7 @@
     </div>
   </form>
 
-  <div id="pdfContent">
+  <div>
     <table id="boekTabel">
       <thead>
         <tr>
@@ -219,42 +219,14 @@
   });
 
   function exportPDF() {
-    const clone = document.getElementById('pdfContent').cloneNode(true);
-
-    // Maak wrapper
-    const element = document.createElement("div");
-    element.style.padding = "20px";
-    element.style.fontFamily = "Segoe UI, sans-serif";
-
-    // Titel + logo
-    const header = document.createElement("div");
-    header.style.display = "flex";
-    header.style.justifyContent = "space-between";
-    header.style.alignItems = "center";
-    header.style.marginBottom = "20px";
-
-    const title = document.createElement("h2");
-    title.innerText = "DOA-diagnostics Boekhouden";
-    title.style.margin = "0";
-    header.appendChild(title);
-
-    const logo = document.createElement("img");
-    logo.src = "IMG_1971.png";
-    logo.style.height = "40px";
-    logo.style.objectFit = "contain";
-    header.appendChild(logo);
-
-    element.appendChild(header);
-    element.appendChild(clone);
-
+    const element = document.body; // Exporteer hele pagina
     const opt = {
-      margin:       0.5,
-      filename:     'DOA-diagnostics-Boekhouden.pdf',
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      margin: 0.5,
+      filename: 'DOA-diagnostics-Boekhouden.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
     };
-
     html2pdf().set(opt).from(element).save();
   }
 </script>
