@@ -12,6 +12,7 @@
       background: #ffffff;
       color: #000000;
     }
+
     header {
       background-color: #42b0e5;
       color: #ffffff;
@@ -20,18 +21,22 @@
       justify-content: space-between;
       align-items: center;
     }
+
     header h1 {
       margin: 0;
       font-size: 1.6rem;
     }
+
     header img {
       height: 50px;
     }
+
     main {
       max-width: 900px;
       margin: 2rem auto;
       padding: 1rem 2rem;
     }
+
     form {
       display: flex;
       gap: 1rem;
@@ -39,23 +44,28 @@
       align-items: flex-end;
       margin-bottom: 2rem;
     }
+
     form label {
       flex: 1 1 100%;
       font-weight: bold;
       margin-bottom: 0.3rem;
     }
+
     form input, form select {
       padding: 0.5rem;
       font-size: 1rem;
       border: 2px solid #42b0e5;
       border-radius: 5px;
       width: 100%;
+      box-sizing: border-box;
     }
+
     form div {
       flex: 1 1 200px;
       display: flex;
       flex-direction: column;
     }
+
     button {
       background-color: #42b0e5;
       color: #ffffff;
@@ -64,69 +74,93 @@
       border-radius: 5px;
       font-size: 1rem;
       cursor: pointer;
+      transition: background-color 0.3s ease;
     }
+
+    button:hover {
+      background-color: #3699c7;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 1.5rem;
     }
+
     table th, table td {
       padding: 0.75rem;
       text-align: left;
       border-bottom: 1px solid #ccc;
     }
+
     table th {
       background-color: #42b0e5;
       color: white;
     }
+
     .totals {
       font-weight: bold;
       font-size: 1.1rem;
-      margin-top: 1rem;
     }
+
     .totals span {
       margin-left: 1rem;
     }
+
     .actions {
       margin-top: 2rem;
     }
+
     .actions button {
       background-color: #000000;
       margin-top: 0.5rem;
+      transition: background-color 0.3s ease;
     }
-    /* Stijl voor het verborgen pdf-element */
+
+    .actions button:hover {
+      background-color: #333333;
+    }
+
+    /* Hidden PDF export area (off-screen) */
     #pdfExportArea {
+      position: fixed;
+      top: -9999px;
+      left: -9999px;
+      width: 800px;
       font-family: 'Segoe UI', sans-serif;
       padding: 20px;
+      background: white;
       color: #000;
+      box-sizing: border-box;
     }
-    #pdfExportArea h2 {
-      color: #42b0e5;
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    #pdfExportArea h2 img {
-      height: 40px;
-      object-fit: contain;
-    }
+
+    /* PDF table styling */
     #pdfExportArea table {
       width: 100%;
       border-collapse: collapse;
+      margin-top: 10px;
+      margin-bottom: 20px;
     }
-    #pdfExportArea table th, #pdfExportArea table td {
+    #pdfExportArea th, #pdfExportArea td {
       border: 1px solid #42b0e5;
       padding: 8px;
       text-align: left;
     }
-    #pdfExportArea table th {
+    #pdfExportArea th {
       background-color: #42b0e5;
       color: white;
     }
-    #pdfExportArea .totals {
-      margin-top: 20px;
-      font-weight: bold;
+
+    #pdfExportArea h2 {
+      margin: 0 0 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #pdfExportArea h2 img {
+      height: 40px;
+      object-fit: contain;
     }
   </style>
 </head>
@@ -143,6 +177,7 @@
       <label for="datum">Datum:</label>
       <input type="date" id="datum" required />
     </div>
+
     <div>
       <label for="type">Type:</label>
       <select id="type" required>
@@ -150,14 +185,17 @@
         <option value="Uitgave">Uitgave</option>
       </select>
     </div>
+
     <div>
       <label for="bedrag">Bedrag (€):</label>
-      <input type="number" id="bedrag" step="0.01" required />
+      <input type="number" id="bedrag" step="0.01" min="0" required />
     </div>
+
     <div>
       <label for="factuurnummer">Factuurnummer:</label>
       <input type="text" id="factuurnummer" required />
     </div>
+
     <div>
       <label for="betaald">Betaald:</label>
       <select id="betaald" required>
@@ -165,12 +203,13 @@
         <option value="Nee">Nee</option>
       </select>
     </div>
+
     <div>
       <button type="submit">Toevoegen</button>
     </div>
   </form>
 
-  <table id="boekTabel">
+  <table id="boekTabel" aria-label="Boekhouding tabel">
     <thead>
       <tr>
         <th>Datum</th>
@@ -183,26 +222,21 @@
     <tbody></tbody>
   </table>
 
-  <div class="totals">
+  <div class="totals" aria-live="polite">
     🧾 Totaal Inkomen: € <span id="totaalInkomen">0.00</span><br />
     💸 Totaal Uitgaven: € <span id="totaalUitgaven">0.00</span><br />
     💰 Saldo: € <span id="saldo">0.00</span>
   </div>
 
   <div class="actions">
-    <button onclick="exportPDF()">📄 Exporteer als PDF</button>
+    <button type="button" onclick="exportPDF()">📄 Exporteer als PDF</button>
   </div>
 </main>
 
-<!-- Verborgen div met alleen de data voor PDF export -->
-<div id="pdfExportArea" style="display:none;"></div>
+<!-- Verborgen container voor PDF export -->
+<div id="pdfExportArea" aria-hidden="true"></div>
 
 <script>
-  // Datum automatisch invullen met vandaag
-  const datumInput = document.getElementById('datum');
-  const vandaag = new Date().toISOString().split('T')[0];
-  datumInput.value = vandaag;
-
   const form = document.getElementById('boekForm');
   const tbody = document.querySelector('#boekTabel tbody');
   const totaalInkomenEl = document.getElementById('totaalInkomen');
@@ -219,10 +253,15 @@
     const datum = document.getElementById('datum').value;
     const type = document.getElementById('type').value;
     const bedrag = parseFloat(document.getElementById('bedrag').value);
-    const factuurnummer = document.getElementById('factuurnummer').value;
+    const factuurnummer = document.getElementById('factuurnummer').value.trim();
     const betaald = document.getElementById('betaald').value;
 
-    // Maak rij aan in tabel
+    if (!datum) {
+      alert('Vul alstublieft een datum in.');
+      return;
+    }
+
+    // Nieuwe rij maken
     const rij = document.createElement('tr');
     rij.innerHTML = `
       <td>${datum}</td>
@@ -247,11 +286,10 @@
     saldoEl.textContent = saldo.toFixed(2);
 
     form.reset();
-    datumInput.value = vandaag; // reset datum naar vandaag
   });
 
   function exportPDF() {
-    // Maak schone kopie van data voor export
+    // Bouw HTML voor PDF
     let pdfHTML = `
       <h2>
         DOA-diagnostics Boekhouden
@@ -270,10 +308,9 @@
         <tbody>
     `;
 
-    // Loop door alle rijen in de tabel en voeg toe
     const rows = tbody.querySelectorAll('tr');
     rows.forEach(row => {
-      pdfHTML += '<tr>' + row.innerHTML + '</tr>';
+      pdfHTML += `<tr>${row.innerHTML}</tr>`;
     });
 
     pdfHTML += `
@@ -282,15 +319,29 @@
       <div class="totals">
         🧾 Totaal Inkomen: € ${totalInkomen.toFixed(2)}<br />
         💸 Totaal Uitgaven: € ${totalUitgaven.toFixed(2)}<br />
-        💰 Saldo: € ${ (totalInkomen - totalUitgaven).toFixed(2)}
+        💰 Saldo: € ${(totalInkomen - totalUitgaven).toFixed(2)}
       </div>
     `;
 
-    // Vul de verborgen div met de content
     pdfExportArea.innerHTML = pdfHTML;
-    pdfExportArea.style.display = 'block';
 
-    // Opties voor html2pdf
     const opt = {
       margin: 0.5,
-      filename: 'DOA-diagnostics-Boekhouden
+      filename: 'DOA-diagnostics-Boekhouden.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(pdfExportArea).save();
+  }
+
+  // Datum standaard op vandaag
+  document.addEventListener('DOMContentLoaded', () => {
+    const datumInput = document.getElementById('datum');
+    datumInput.value = new Date().toISOString().split('T')[0];
+  });
+</script>
+
+</body>
+</html>
