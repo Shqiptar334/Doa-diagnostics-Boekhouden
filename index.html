@@ -7,24 +7,25 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body {
-      margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
       color: #000000;
     }
 
     header {
       background-color: #42b0e5;
-      color: #ffffff;
-      padding: 1rem 2rem;
+      color: white;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 1rem 2rem;
     }
 
     header h1 {
       margin: 0;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
     }
 
     header img {
@@ -34,7 +35,7 @@
     main {
       max-width: 900px;
       margin: 2rem auto;
-      padding: 1rem 2rem;
+      padding: 1rem;
     }
 
     form {
@@ -83,7 +84,7 @@
     }
 
     table th, table td {
-      padding: 0.75rem;
+      padding: 0.7rem;
       border-bottom: 1px solid #ccc;
       text-align: left;
     }
@@ -98,17 +99,12 @@
       font-size: 1.1rem;
     }
 
-    .totals span {
-      margin-left: 1rem;
-    }
-
     .actions {
       margin-top: 2rem;
     }
 
     .actions button {
       background-color: #000000;
-      margin-top: 0.5rem;
     }
 
     .actions button:hover {
@@ -126,141 +122,119 @@
 <main>
   <form id="boekForm">
     <div>
-      <label for="datum">Datum:</label>
-      <input type="date" id="datum" required>
-    </div>
-    <div>
       <label for="type">Type:</label>
       <select id="type" required>
         <option value="Inkomen">Inkomen</option>
         <option value="Uitgave">Uitgave</option>
       </select>
     </div>
+
     <div>
       <label for="bedrag">Bedrag (€):</label>
-      <input type="number" id="bedrag" step="0.01" required>
+      <input type="number" id="bedrag" step="0.01" required />
     </div>
+
     <div>
       <label for="factuurnummer">Factuurnummer:</label>
-      <input type="text" id="factuurnummer" required>
+      <input type="text" id="factuurnummer" required />
     </div>
-    <div>
-      <label for="betaald">Betaald:</label>
-      <select id="betaald" required>
-        <option value="Ja">Ja</option>
-        <option value="Nee">Nee</option>
-      </select>
-    </div>
+
     <div>
       <button type="button" onclick="voegToe()">Toevoegen</button>
     </div>
   </form>
 
-  <!-- Alleen dit deel komt in de PDF -->
-  <div id="pdfContent">
-    <table id="boekTabel">
-      <thead>
-        <tr>
-          <th>Datum</th>
-          <th>Type</th>
-          <th>Bedrag (€)</th>
-          <th>Factuurnummer</th>
-          <th>Betaald</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-
-    <div class="totals">
-      🧾 Totaal Inkomen: € <span id="totaalInkomen">0.00</span><br>
-      💸 Totaal Uitgaven: € <span id="totaalUitgaven">0.00</span><br>
-      💰 Saldo: € <span id="saldo">0.00</span>
-    </div>
-  </div>
-
   <div class="actions">
-    <button type="button" onclick="exportPDF()">📄 Exporteer als PDF</button>
+    <button onclick="exportPDF()">📄 Exporteer PDF</button>
   </div>
 </main>
 
 <script>
-  const datumInput = document.getElementById('datum');
-  const tbody = document.querySelector('#boekTabel tbody');
-  const totaalInkomenEl = document.getElementById('totaalInkomen');
-  const totaalUitgavenEl = document.getElementById('totaalUitgaven');
-  const saldoEl = document.getElementById('saldo');
-
+  const gegevens = [];
   let totaalInkomen = 0;
   let totaalUitgaven = 0;
 
-  window.addEventListener('DOMContentLoaded', () => {
-    const vandaag = new Date().toISOString().split('T')[0];
-    datumInput.value = vandaag;
-  });
-
   function voegToe() {
-    const datum = document.getElementById('datum').value;
     const type = document.getElementById('type').value;
     const bedrag = parseFloat(document.getElementById('bedrag').value);
     const factuurnummer = document.getElementById('factuurnummer').value;
-    const betaald = document.getElementById('betaald').value;
 
-    if (!datum || isNaN(bedrag) || !factuurnummer) {
+    if (!type || isNaN(bedrag) || !factuurnummer) {
       alert("Vul alle velden correct in.");
       return;
     }
 
-    const rij = document.createElement('tr');
-    rij.innerHTML = `
-      <td>${datum}</td>
-      <td>${type}</td>
-      <td>€ ${bedrag.toFixed(2)}</td>
-      <td>${factuurnummer}</td>
-      <td>${betaald}</td>
-    `;
-    tbody.appendChild(rij);
+    gegevens.push({ type, bedrag, factuurnummer });
 
-    if (type === 'Inkomen') {
+    if (type === "Inkomen") {
       totaalInkomen += bedrag;
     } else {
       totaalUitgaven += bedrag;
     }
 
-    const saldo = totaalInkomen - totaalUitgaven;
-
-    totaalInkomenEl.textContent = totaalInkomen.toFixed(2);
-    totaalUitgavenEl.textContent = totaalUitgaven.toFixed(2);
-    saldoEl.textContent = saldo.toFixed(2);
-
-    document.getElementById('boekForm').reset();
-    datumInput.value = new Date().toISOString().split('T')[0];
+    document.getElementById("boekForm").reset();
   }
 
   function exportPDF() {
-    const content = document.getElementById('pdfContent').cloneNode(true);
+    const wrapper = document.createElement("div");
+    wrapper.style.fontFamily = 'Segoe UI, sans-serif';
+    wrapper.style.padding = "20px";
 
-    // Bouw nieuw PDF-element met titel en logo
-    const pdfWrapper = document.createElement('div');
-    pdfWrapper.style.fontFamily = 'Segoe UI, sans-serif';
-    pdfWrapper.style.padding = '20px';
+    // Titel + Logo
+    const kop = document.createElement("div");
+    kop.style.display = "flex";
+    kop.style.justifyContent = "space-between";
+    kop.style.alignItems = "center";
+    kop.style.marginBottom = "20px";
 
-    const header = document.createElement('div');
-    header.style.display = 'flex';
-    header.style.justifyContent = 'space-between';
-    header.style.alignItems = 'center';
-    header.style.marginBottom = '20px';
+    const titel = document.createElement("h2");
+    titel.textContent = "DOA-diagnostics Boekhouden";
+    titel.style.textAlign = "left";
+    titel.style.margin = 0;
 
-    const title = document.createElement('h2');
-    title.textContent = 'DOA-diagnostics Boekhouden';
-    header.appendChild(title);
+    const logo = document.createElement("img");
+    logo.src = "IMG_1971.png";
+    logo.style.height = "40px";
 
-    const logo = document.createElement('img');
-    logo.src = 'IMG_1971.png';
-    logo.style.height = '40px';
-    header.appendChild(logo);
+    kop.appendChild(titel);
+    kop.appendChild(logo);
+    wrapper.appendChild(kop);
 
-    pdfWrapper.appendChild(header);
-    pdfWrapper.appendChild(content);
+    // Tabel
+    const table = document.createElement("table");
+    table.style.width = "100%";
+    table.style.borderCollapse = "collapse";
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th style="background:#42b0e5;color:white;padding:8px;">Type</th>
+          <th style="background:#42b0e5;color:white;padding:8px;">Bedrag (€)</th>
+          <th style="background:#42b0e5;color:white;padding:8px;">Factuurnummer</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${gegevens.map(g => `
+          <tr>
+            <td style="padding:8px;border-bottom:1px solid #ccc;">${g.type}</td>
+            <td style="padding:8px;border-bottom:1px solid #ccc;">€ ${g.bedrag.toFixed(2)}</td>
+            <td style="padding:8px;border-bottom:1px solid #ccc;">${g.factuurnummer}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    `;
+    wrapper.appendChild(table);
+
+    // Totalen
+    const saldo = totaalInkomen - totaalUitgaven;
+    const totaalDiv = document.createElement("div");
+    totaalDiv.style.marginTop = "20px";
+    totaalDiv.style.fontWeight = "bold";
+    totaalDiv.innerHTML = `
+      🧾 Totaal Inkomen: € ${totaalInkomen.toFixed(2)}<br>
+      💸 Totaal Uitgaven: € ${totaalUitgaven.toFixed(2)}<br>
+      💰 Saldo: € ${saldo.toFixed(2)}
+    `;
+    wrapper.appendChild(totaalDiv);
 
     const opt = {
       margin: 0.5,
@@ -270,7 +244,7 @@
       jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
     };
 
-    html2pdf().set(opt).from(pdfWrapper).save();
+    html2pdf().set(opt).from(wrapper).save();
   }
 </script>
 
