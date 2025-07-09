@@ -57,7 +57,6 @@
       border: 2px solid #42b0e5;
       border-radius: 5px;
       width: 100%;
-      box-sizing: border-box;
     }
 
     form div {
@@ -74,11 +73,10 @@
       border-radius: 5px;
       font-size: 1rem;
       cursor: pointer;
-      transition: background-color 0.3s ease;
     }
 
     button:hover {
-      background-color: #3699c7;
+      background-color: #3599c3;
     }
 
     table {
@@ -114,53 +112,10 @@
     .actions button {
       background-color: #000000;
       margin-top: 0.5rem;
-      transition: background-color 0.3s ease;
     }
 
     .actions button:hover {
-      background-color: #333333;
-    }
-
-    /* Hidden PDF export area (off-screen) */
-    #pdfExportArea {
-      position: fixed;
-      top: -9999px;
-      left: -9999px;
-      width: 800px;
-      font-family: 'Segoe UI', sans-serif;
-      padding: 20px;
-      background: white;
-      color: #000;
-      box-sizing: border-box;
-    }
-
-    /* PDF table styling */
-    #pdfExportArea table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      margin-bottom: 20px;
-    }
-    #pdfExportArea th, #pdfExportArea td {
-      border: 1px solid #42b0e5;
-      padding: 8px;
-      text-align: left;
-    }
-    #pdfExportArea th {
-      background-color: #42b0e5;
-      color: white;
-    }
-
-    #pdfExportArea h2 {
-      margin: 0 0 10px 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    #pdfExportArea h2 img {
-      height: 40px;
-      object-fit: contain;
+      background-color: #222;
     }
   </style>
 </head>
@@ -171,7 +126,7 @@
   <img src="IMG_1971.png" alt="Logo" />
 </header>
 
-<main>
+<main id="pdfContent">
   <form id="boekForm">
     <div>
       <label for="datum">Datum:</label>
@@ -188,7 +143,7 @@
 
     <div>
       <label for="bedrag">Bedrag (€):</label>
-      <input type="number" id="bedrag" step="0.01" min="0" required />
+      <input type="number" id="bedrag" step="0.01" required />
     </div>
 
     <div>
@@ -209,7 +164,7 @@
     </div>
   </form>
 
-  <table id="boekTabel" aria-label="Boekhouding tabel">
+  <table id="boekTabel">
     <thead>
       <tr>
         <th>Datum</th>
@@ -222,7 +177,7 @@
     <tbody></tbody>
   </table>
 
-  <div class="totals" aria-live="polite">
+  <div class="totals">
     🧾 Totaal Inkomen: € <span id="totaalInkomen">0.00</span><br />
     💸 Totaal Uitgaven: € <span id="totaalUitgaven">0.00</span><br />
     💰 Saldo: € <span id="saldo">0.00</span>
@@ -233,19 +188,22 @@
   </div>
 </main>
 
-<!-- Verborgen container voor PDF export -->
-<div id="pdfExportArea" aria-hidden="true"></div>
-
 <script>
   const form = document.getElementById('boekForm');
   const tbody = document.querySelector('#boekTabel tbody');
   const totaalInkomenEl = document.getElementById('totaalInkomen');
   const totaalUitgavenEl = document.getElementById('totaalUitgaven');
   const saldoEl = document.getElementById('saldo');
-  const pdfExportArea = document.getElementById('pdfExportArea');
+  const datumInput = document.getElementById('datum');
 
   let totalInkomen = 0;
   let totalUitgaven = 0;
+
+  // Zet standaarddatum op vandaag
+  window.addEventListener('DOMContentLoaded', () => {
+    const vandaag = new Date().toISOString().split('T')[0];
+    datumInput.value = vandaag;
+  });
 
   form.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -253,15 +211,9 @@
     const datum = document.getElementById('datum').value;
     const type = document.getElementById('type').value;
     const bedrag = parseFloat(document.getElementById('bedrag').value);
-    const factuurnummer = document.getElementById('factuurnummer').value.trim();
+    const factuurnummer = document.getElementById('factuurnummer').value;
     const betaald = document.getElementById('betaald').value;
 
-    if (!datum) {
-      alert('Vul alstublieft een datum in.');
-      return;
-    }
-
-    // Nieuwe rij maken
     const rij = document.createElement('tr');
     rij.innerHTML = `
       <td>${datum}</td>
@@ -272,7 +224,6 @@
     `;
     tbody.appendChild(rij);
 
-    // Update totalen
     if (type === 'Inkomen') {
       totalInkomen += bedrag;
     } else {
@@ -286,44 +237,11 @@
     saldoEl.textContent = saldo.toFixed(2);
 
     form.reset();
+    datumInput.value = new Date().toISOString().split('T')[0]; // datum op vandaag
   });
 
   function exportPDF() {
-    // Bouw HTML voor PDF
-    let pdfHTML = `
-      <h2>
-        DOA-diagnostics Boekhouden
-        <img src="IMG_1971.png" alt="Logo" />
-      </h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Datum</th>
-            <th>Type</th>
-            <th>Bedrag (€)</th>
-            <th>Factuurnummer</th>
-            <th>Betaald</th>
-          </tr>
-        </thead>
-        <tbody>
-    `;
-
-    const rows = tbody.querySelectorAll('tr');
-    rows.forEach(row => {
-      pdfHTML += `<tr>${row.innerHTML}</tr>`;
-    });
-
-    pdfHTML += `
-        </tbody>
-      </table>
-      <div class="totals">
-        🧾 Totaal Inkomen: € ${totalInkomen.toFixed(2)}<br />
-        💸 Totaal Uitgaven: € ${totalUitgaven.toFixed(2)}<br />
-        💰 Saldo: € ${(totalInkomen - totalUitgaven).toFixed(2)}
-      </div>
-    `;
-
-    pdfExportArea.innerHTML = pdfHTML;
+    const element = document.getElementById('pdfContent');
 
     const opt = {
       margin: 0.5,
@@ -333,14 +251,8 @@
       jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
     };
 
-    html2pdf().set(opt).from(pdfExportArea).save();
+    html2pdf().set(opt).from(element).save();
   }
-
-  // Datum standaard op vandaag
-  document.addEventListener('DOMContentLoaded', () => {
-    const datumInput = document.getElementById('datum');
-    datumInput.value = new Date().toISOString().split('T')[0];
-  });
 </script>
 
 </body>
