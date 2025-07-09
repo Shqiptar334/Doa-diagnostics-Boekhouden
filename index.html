@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>DOA-diagnostics Boekhouden</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
@@ -12,7 +12,6 @@
       background: #ffffff;
       color: #000000;
     }
-
     header {
       background-color: #42b0e5;
       color: #ffffff;
@@ -21,22 +20,18 @@
       justify-content: space-between;
       align-items: center;
     }
-
     header h1 {
       margin: 0;
       font-size: 1.6rem;
     }
-
     header img {
       height: 50px;
     }
-
     main {
       max-width: 900px;
       margin: 2rem auto;
       padding: 1rem 2rem;
     }
-
     form {
       display: flex;
       gap: 1rem;
@@ -44,13 +39,11 @@
       align-items: flex-end;
       margin-bottom: 2rem;
     }
-
     form label {
       flex: 1 1 100%;
       font-weight: bold;
       margin-bottom: 0.3rem;
     }
-
     form input, form select {
       padding: 0.5rem;
       font-size: 1rem;
@@ -58,13 +51,11 @@
       border-radius: 5px;
       width: 100%;
     }
-
     form div {
       flex: 1 1 200px;
       display: flex;
       flex-direction: column;
     }
-
     button {
       background-color: #42b0e5;
       color: #ffffff;
@@ -74,40 +65,68 @@
       font-size: 1rem;
       cursor: pointer;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
       margin-bottom: 1.5rem;
     }
-
     table th, table td {
       padding: 0.75rem;
       text-align: left;
       border-bottom: 1px solid #ccc;
     }
-
     table th {
       background-color: #42b0e5;
       color: white;
     }
-
     .totals {
       font-weight: bold;
       font-size: 1.1rem;
+      margin-top: 1rem;
     }
-
     .totals span {
       margin-left: 1rem;
     }
-
     .actions {
       margin-top: 2rem;
     }
-
     .actions button {
       background-color: #000000;
       margin-top: 0.5rem;
+    }
+    /* Stijl voor het verborgen pdf-element */
+    #pdfExportArea {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+      color: #000;
+    }
+    #pdfExportArea h2 {
+      color: #42b0e5;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #pdfExportArea h2 img {
+      height: 40px;
+      object-fit: contain;
+    }
+    #pdfExportArea table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #pdfExportArea table th, #pdfExportArea table td {
+      border: 1px solid #42b0e5;
+      padding: 8px;
+      text-align: left;
+    }
+    #pdfExportArea table th {
+      background-color: #42b0e5;
+      color: white;
+    }
+    #pdfExportArea .totals {
+      margin-top: 20px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -115,7 +134,7 @@
 
 <header>
   <h1>DOA-diagnostics Boekhouden</h1>
-  <img src="IMG_1971.png" alt="Logo">
+  <img src="IMG_1971.png" alt="Logo" />
 </header>
 
 <main>
@@ -124,7 +143,6 @@
       <label for="datum">Datum:</label>
       <input type="date" id="datum" required />
     </div>
-
     <div>
       <label for="type">Type:</label>
       <select id="type" required>
@@ -132,17 +150,14 @@
         <option value="Uitgave">Uitgave</option>
       </select>
     </div>
-
     <div>
       <label for="bedrag">Bedrag (€):</label>
       <input type="number" id="bedrag" step="0.01" required />
     </div>
-
     <div>
       <label for="factuurnummer">Factuurnummer:</label>
       <input type="text" id="factuurnummer" required />
     </div>
-
     <div>
       <label for="betaald">Betaald:</label>
       <select id="betaald" required>
@@ -150,31 +165,28 @@
         <option value="Nee">Nee</option>
       </select>
     </div>
-
     <div>
       <button type="submit">Toevoegen</button>
     </div>
   </form>
 
-  <div id="pdfContent">
-    <table id="boekTabel">
-      <thead>
-        <tr>
-          <th>Datum</th>
-          <th>Type</th>
-          <th>Bedrag (€)</th>
-          <th>Factuurnummer</th>
-          <th>Betaald</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <table id="boekTabel">
+    <thead>
+      <tr>
+        <th>Datum</th>
+        <th>Type</th>
+        <th>Bedrag (€)</th>
+        <th>Factuurnummer</th>
+        <th>Betaald</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
-    <div class="totals">
-      🧾 Totaal Inkomen: € <span id="totaalInkomen">0.00</span><br />
-      💸 Totaal Uitgaven: € <span id="totaalUitgaven">0.00</span><br />
-      💰 Saldo: € <span id="saldo">0.00</span>
-    </div>
+  <div class="totals">
+    🧾 Totaal Inkomen: € <span id="totaalInkomen">0.00</span><br />
+    💸 Totaal Uitgaven: € <span id="totaalUitgaven">0.00</span><br />
+    💰 Saldo: € <span id="saldo">0.00</span>
   </div>
 
   <div class="actions">
@@ -182,12 +194,21 @@
   </div>
 </main>
 
+<!-- Verborgen div met alleen de data voor PDF export -->
+<div id="pdfExportArea" style="display:none;"></div>
+
 <script>
+  // Datum automatisch invullen met vandaag
+  const datumInput = document.getElementById('datum');
+  const vandaag = new Date().toISOString().split('T')[0];
+  datumInput.value = vandaag;
+
   const form = document.getElementById('boekForm');
   const tbody = document.querySelector('#boekTabel tbody');
   const totaalInkomenEl = document.getElementById('totaalInkomen');
   const totaalUitgavenEl = document.getElementById('totaalUitgaven');
   const saldoEl = document.getElementById('saldo');
+  const pdfExportArea = document.getElementById('pdfExportArea');
 
   let totalInkomen = 0;
   let totalUitgaven = 0;
@@ -201,6 +222,7 @@
     const factuurnummer = document.getElementById('factuurnummer').value;
     const betaald = document.getElementById('betaald').value;
 
+    // Maak rij aan in tabel
     const rij = document.createElement('tr');
     rij.innerHTML = `
       <td>${datum}</td>
@@ -211,6 +233,7 @@
     `;
     tbody.appendChild(rij);
 
+    // Update totalen
     if (type === 'Inkomen') {
       totalInkomen += bedrag;
     } else {
@@ -224,46 +247,50 @@
     saldoEl.textContent = saldo.toFixed(2);
 
     form.reset();
+    datumInput.value = vandaag; // reset datum naar vandaag
   });
 
   function exportPDF() {
-    const clone = document.getElementById('pdfContent').cloneNode(true);
+    // Maak schone kopie van data voor export
+    let pdfHTML = `
+      <h2>
+        DOA-diagnostics Boekhouden
+        <img src="IMG_1971.png" alt="Logo" />
+      </h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Datum</th>
+            <th>Type</th>
+            <th>Bedrag (€)</th>
+            <th>Factuurnummer</th>
+            <th>Betaald</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
 
-    const element = document.createElement("div");
-    element.style.padding = "20px";
-    element.style.fontFamily = "Segoe UI, sans-serif";
+    // Loop door alle rijen in de tabel en voeg toe
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach(row => {
+      pdfHTML += '<tr>' + row.innerHTML + '</tr>';
+    });
 
-    const header = document.createElement("div");
-    header.style.display = "flex";
-    header.style.justifyContent = "space-between";
-    header.style.alignItems = "center";
-    header.style.marginBottom = "20px";
+    pdfHTML += `
+        </tbody>
+      </table>
+      <div class="totals">
+        🧾 Totaal Inkomen: € ${totalInkomen.toFixed(2)}<br />
+        💸 Totaal Uitgaven: € ${totalUitgaven.toFixed(2)}<br />
+        💰 Saldo: € ${ (totalInkomen - totalUitgaven).toFixed(2)}
+      </div>
+    `;
 
-    const title = document.createElement("h2");
-    title.innerText = "DOA-diagnostics Boekhouden";
-    title.style.margin = "0";
-    header.appendChild(title);
+    // Vul de verborgen div met de content
+    pdfExportArea.innerHTML = pdfHTML;
+    pdfExportArea.style.display = 'block';
 
-    const logo = document.createElement("img");
-    logo.src = "IMG_1971.png";
-    logo.style.height = "40px";
-    logo.style.objectFit = "contain";
-    header.appendChild(logo);
-
-    element.appendChild(header);
-    element.appendChild(clone);
-
+    // Opties voor html2pdf
     const opt = {
       margin: 0.5,
-      filename: 'DOA-diagnostics-Boekhouden.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(element).save();
-  }
-</script>
-
-</body>
-</html>
+      filename: 'DOA-diagnostics-Boekhouden
