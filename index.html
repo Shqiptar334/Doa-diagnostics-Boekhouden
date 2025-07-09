@@ -57,6 +57,7 @@
       border: 2px solid #42b0e5;
       border-radius: 5px;
       width: 100%;
+      box-sizing: border-box;
     }
 
     form div {
@@ -160,7 +161,7 @@
     </div>
 
     <div>
-      <button type="submit">Toevoegen</button>
+      <button type="button" onclick="voegToe()">Toevoegen</button>
     </div>
   </form>
 
@@ -189,7 +190,6 @@
 </main>
 
 <script>
-  const form = document.getElementById('boekForm');
   const tbody = document.querySelector('#boekTabel tbody');
   const totaalInkomenEl = document.getElementById('totaalInkomen');
   const totaalUitgavenEl = document.getElementById('totaalUitgaven');
@@ -205,14 +205,17 @@
     datumInput.value = vandaag;
   });
 
-  form.addEventListener('submit', function(e) {
-    e.preventDefault();
-
+  function voegToe() {
     const datum = document.getElementById('datum').value;
     const type = document.getElementById('type').value;
     const bedrag = parseFloat(document.getElementById('bedrag').value);
     const factuurnummer = document.getElementById('factuurnummer').value;
     const betaald = document.getElementById('betaald').value;
+
+    if (!datum || isNaN(bedrag) || !factuurnummer) {
+      alert("Vul alle velden correct in.");
+      return;
+    }
 
     const rij = document.createElement('tr');
     rij.innerHTML = `
@@ -236,9 +239,9 @@
     totaalUitgavenEl.textContent = totalUitgaven.toFixed(2);
     saldoEl.textContent = saldo.toFixed(2);
 
-    form.reset();
-    datumInput.value = new Date().toISOString().split('T')[0]; // datum op vandaag
-  });
+    document.getElementById('boekForm').reset();
+    datumInput.value = new Date().toISOString().split('T')[0];
+  }
 
   function exportPDF() {
     const element = document.getElementById('pdfContent');
